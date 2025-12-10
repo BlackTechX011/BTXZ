@@ -1,16 +1,3 @@
 {
-  "version": "1.1.0",
-  "urls": {
-    "sha256sums.txt": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/sha256sums.txt",
-    "btxz-windows-amd64-modern.exe": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-windows-amd64-modern.exe",
-    "btxz-windows-amd64-compat.exe": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-windows-amd64-compat.exe",
-    "btxz-linux-amd64-modern": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-linux-amd64-modern",
-    "btxz-linux-amd64-compat": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-linux-amd64-compat",
-    "btxz-darwin-arm64-modern": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-darwin-arm64-modern",
-    "btxz-darwin-arm64-compat": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-darwin-arm64-compat",
-    "btxz-darwin-amd64-modern": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-darwin-amd64-modern",
-    "btxz-darwin-amd64-compat": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/btxz-darwin-amd64-compat",
-    "install.sh": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/install.sh",
-    "install.ps1": "https://github.com/BlackTechX011/BTXZ/releases/download/v1.1.0/install.ps1"
-  }
+  "version": "1.2.0"
 }
