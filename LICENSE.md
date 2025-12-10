@@ -1,65 +1,52 @@
-# End-User License Agreement (EULA) for BTXZ™
+# BTXZ™ End-User License Agreement (EULA)
 
-This End-User License Agreement ("EULA") is a legal agreement between you (either an individual or a single entity), the "Licensee," and **BlackTechX011**, the "Licensor," for the software product identified as **BTXZ™** ("Software"), which includes all associated files, source code, media, and documentation.
+**Version 1.0**
+**Effective Date: December 10, 2025**
 
-By installing, copying, or otherwise using the Software, you agree to be bound by the terms of this EULA. If you do not agree to the terms of this EULA, do not install or use the Software.
+IMPORTANT — READ CAREFULLY: This End-User License Agreement ("Agreement") is a legal agreement between You (either an individual or a single legal entity) and **BlackTechX011** ("Licensor") for the software product **BTXZ™** ("Software").
 
-This software is distributed under a custom End-User License Agreement (EULA). It is granted for personal, non-commercial use only.
+BY INSTALLING, COPYING, OR OTHERWISE USING THE SOFTWARE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS AGREEMENT. IF YOU DO NOT AGREE TO THE TERMS OF THIS AGREEMENT, DO NOT INSTALL OR USE THE SOFTWARE.
 
----
+## 1. GRANT OF LICENSE
 
-### 1. Grant of License
+The Licensor hereby grants You a non-exclusive, non-transferable, limited license to use the Software solely for **Personal, Non-Commercial Use**.
 
-The Licensor hereby grants to the Licensee a non-exclusive, non-transferable, revocable license to use the Software for personal and non-commercial purposes only, subject to the terms and conditions set forth in this Agreement.
+### "Personal, Non-Commercial Use" Definitions:
+*   **Permitted:** Using the software on your personal devices for archiving personal files (e.g., photos, documents, backups).
+*   **Permitted:** Using the software in an academic setting for learning purposes.
+*   **Prohibited:** Using the software in a corporate environment.
+*   **Prohibited:** Using the software to process data for a business, non-profit, or government entity.
+*   **Prohibited:** Bundling the software with any commercial product.
 
-### 2. Restrictions
+## 2. COMMERCIAL USE RESTRICTIONS
 
-You are expressly and emphatically restricted from all of the following:
+**Commercial usage is strictly prohibited without a separate Commercial License.**
 
-*   **Commercial Use:** You may not use, copy, modify, or distribute the Software or any of its parts for any commercial purpose without obtaining prior written permission from the Licensor. "Commercial Use" includes, but is not limited to, using the software in a business environment, integrating it into a product that is sold, or using it in any way that generates revenue.
+If You wish to use the Software for any commercial purpose (including but not limited to corporate backups, server automation in a company, or distribution within a commercial product), You must contact the Licensor to obtain a Commercial License.
 
-*   **Sublicensing, Selling, or Renting:** You may not sublicense, sell, rent, lease, or otherwise transfer your rights in the Software to any third party.
+**Contact for Licensing:** [BlackTechX@proton.me](mailto:BlackTechX@proton.me)
 
-*   **Removing Notices:** You may not remove or alter any copyright, trademark, or other proprietary notices from the Software.
+## 3. PROPRIETARY RIGHTS
 
-### 3. Conditions for Modification and Redistribution
+The Software is protected by copyright laws and international copyright treaties, as well as other intellectual property laws and treaties. The Software is licensed, not sold.
 
-You are permitted to create derivative works or modifications ("Modifications") of the Software, provided that you adhere strictly to the following conditions:
+*   **Ownership:** The Licensor retains all right, title, and interest in and to the Software, including all intellectual property rights.
+*   **Trademarks:** "BTXZ" is a trademark of the Licensor. This Agreement does not grant You any rights in connection with any trademarks or service marks of the Licensor.
 
-*   **Naming Convention:** Any modified version of the Software that you distribute **must** contain the lowercase string `btxz` within its name. For example, `my-btxz-project` or `super-feature-for-btxz` are acceptable.
+## 4. CONDITIONS FOR REDISTRIBUTION
 
-*   **Attribution Statement:** The documentation (e.g., the `README.md` file) for your Modification **must** prominently display the following text:
-    > This project is built on BTXZ™ by BlackTechX011.
+You may redistribute the Software solely in its unmodified binary form, provided that:
+1.  You do not charge any fee for the Software.
+2.  You include this EULA in the distribution.
+3.  You do not modify the binary executable in any way.
 
-*   **Link to Original Repository:** You **must** include a direct and clearly visible link back to the original BTXZ™ repository in your Modification's documentation. The URL to include is:
-    > `https://github.com/BlackTechX011/BTXZ`
+## 5. DISCLAIMER OF WARRANTY
 
-Failure to comply with any of these conditions for modification and redistribution will result in an immediate and automatic termination of your license.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-### 4. Trademark
+## 6. TERMINATION
 
-The name **BTXZ™** is a trademark of the Licensor, BlackTechX011. This EULA does not grant you any rights to use the Licensor's trademarks, logos, or trade names. You may not use the `BTXZ` trademark to endorse or promote your own modified versions of the software without the express prior written consent of the Licensor. The required attribution in Section 3 is a limited exception for the sole purpose of acknowledging the original work.
-
-### 5. Copyright
-
-The Software is owned by BlackTechX011 and is protected by copyright laws and international copyright treaties, as well as other intellectual property laws and treaties. This EULA grants you no rights to the source code other than those explicitly stated. All rights not expressly granted are reserved by the Licensor.
-
-### 6. Disclaimer of Warranty
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
-
-### 7. Limitation of Liability
-
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-### 8. Termination
-
-This EULA will terminate automatically if you fail to comply with any of its terms and conditions. Upon termination, you must immediately cease all use of the Software and destroy all copies of the Software in your possession.
-
-### 9. Contact
-
-To request permission for commercial use or for any other inquiries regarding this license, please contact the Licensor, **BlackTechX011**, through the official repository's "Issues" section or other contact methods provided by the Licensor.
+Without prejudice to any other rights, the Licensor may terminate this Agreement if You fail to comply with the terms and conditions of this Agreement. In such event, You must destroy all copies of the Software and all of its component parts.
 
 ---
-
-Copyright © 2025-present, BlackTechX011. All Rights Reserved.
+Copyright © 2025 BlackTechX011. All Rights Reserved.
