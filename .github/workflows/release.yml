@@ -8,7 +8,7 @@ on:
 
 jobs:
   # ===================================================================
-  # BUILD ON UBUNTU 20.04 (FOR WIDE COMPATIBILITY) - USING DOCKER
+  # BUILD ON UBUNTU 20.04 (FOR WIDE COMPATIBILITY)
   # ===================================================================
   build-compatible:
     runs-on: ubuntu-latest
@@ -80,29 +80,34 @@ jobs:
           path: artifacts/
 
   # ===================================================================
-  # COLLECT ALL BINARIES AND CREATE A SINGLE RELEASE
+  # COLLECT BINARIES, CREATE RELEASE, AND UPDATE JSON
   # ===================================================================
   release:
     needs: [build-compatible, build-modern]
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # Required for creating releases and pushing changes
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main # Explicitly checkout main to allow pushing later
 
-      - name: Read version
-        run: echo "VERSION=$(jq -r .version version.json)" >> $GITHUB_ENV
-        
-      - name: Get Release Notes from Commit
-        id: get_notes
+      - name: Read Metadata from version.json
+        id: meta
         run: |
-          COMMIT_MSG=$(git log -1 --pretty='format:%B' -- version.json)
-          echo "NOTES<<EOF" >> $GITHUB_ENV
-          echo "${COMMIT_MSG}" >> $GITHUB_ENV
+          # Extract Version and Title
+          VERSION=$(jq -r .version version.json)
+          TITLE=$(jq -r .title version.json)
+          
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "RELEASE_TITLE=$TITLE" >> $GITHUB_ENV
+          
+          # Extract Multiline Markdown Message safely using EOF
+          echo "RELEASE_BODY<<EOF" >> $GITHUB_ENV
+          jq -r .message version.json >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Download all artifacts
@@ -111,24 +116,27 @@ jobs:
           path: combined-artifacts
           merge-multiple: true 
           
-      - name: Generate checksums
+      - name: Organize Artifacts & Checksums
         run: |
           mkdir -p artifacts
+          # Move all downloaded binaries into the artifacts folder
           mv combined-artifacts/* artifacts/
+          
+          # Generate checksums
           chmod +x scripts/generate-checksums.sh
-          # This script correctly creates artifacts/sha256sums.txt
           scripts/generate-checksums.sh
           
+          # Debug: Show files to ensure they exist
+          ls -l artifacts/
+
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "v${{ env.VERSION }}"
-          name: "Release v${{ env.VERSION }}"
-          body: ${{ steps.get_notes.outputs.NOTES }}
+          name: "${{ env.RELEASE_TITLE }}" # Uses title from JSON
+          body: "${{ env.RELEASE_BODY }}"   # Uses markdown message from JSON
           files: |
-            # The 'artifacts/*' glob now correctly includes all binaries
-            # AND the sha256sums.txt file created by the script.
             artifacts/*
             scripts/install.sh
             scripts/install.ps1
@@ -142,17 +150,28 @@ jobs:
         env:
           ASSETS_JSON: ${{ steps.create_release.outputs.assets }}
         run: |
+          # Pass asset data to python script
           python3 scripts/update_manifest.py version.json "$ASSETS_JSON" artifacts/
+          
+          # Print for verification
+          echo "Updated version.json content:"
           cat version.json
 
       - name: Commit and push updated version.json
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
+          git checkout main
+          
+          git pull origin main --rebase
+          
           git add version.json
+          
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(release): Update asset URLs and Checksums for v${{ env.VERSION }}"
-            git push
+           
+            git commit -m "chore(release): Update asset URLs for v${{ env.VERSION }} [skip ci]"
+            git push origin main
           fi
