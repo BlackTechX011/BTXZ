@@ -11,208 +11,124 @@
   </pre>
 </p>
 
-<h1 align="center">BTXZ™ Archiver</h1>
+<h1 align="center">BTXZ Archiver</h1>
 
 <p align="center">
-  A modern, secure, high-compression command-line archiver.
+  <strong>Secure. Adaptive. Professional.</strong>
 </p>
 
 <p align="center">
-    <a href="https://github.com/BlackTechX011/BTXZ/releases/latest"><img src="https://img.shields.io/github/v/release/BlackTechX011/BTXZ?style=for-the-badge&logo=github&color=blue" alt="Latest Release"></a>
-    <a href="https://github.com/BlackTechX011/BTXZ/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/BlackTechX011/BTXZ?style=for-the-badge&color=lightgrey" alt="License"></a>
-    <a href="https://github.com/BlackTechX011/BTXZ/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/BlackTechX011/BTXZ/release.yml?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build Status"></a>
-   
-</p>
-
-<p align="center">
-  <a href="#-why-btxz">Why BTXZ?</a> •
-  <a href="#-installation">Installation</a> •
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-command-reference">Commands</a> •
-  <a href="#-contributing">Contributing</a> •
-  <a href="#-license">License</a>
+    <a href="https://github.com/BlackTechX011/BTXZ/releases/latest"><img src="https://img.shields.io/github/v/release/BlackTechX011/BTXZ?style=flat-square&color=0055ff" alt="Latest Release"></a>
+    <a href="https://github.com/BlackTechX011/BTXZ/blob/main/LICENSE.md"><img src="https://img.shields.io/github/license/BlackTechX011/BTXZ?style=flat-square&color=lightgrey" alt="License"></a>
+    <a href="https://github.com/BlackTechX011/BTXZ/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/BlackTechX011/BTXZ/release.yml?style=flat-square" alt="Build Status"></a>
 </p>
 
 ---
 
-**BTXZ™** is a professional command-line tool for creating and extracting securely encrypted, highly compressed archives. It's built from the ground up to prioritize security and provide a polished user experience, ensuring your data is safe and the tool is a pleasure to use.
+## Overview
 
-> [!NOTE]
-> BTXZ encrypts **everything**, including file names and directory structures. An attacker without the password cannot learn anything about the contents of your archive.
+**BTXZ** is a high-performance command-line archiving utility designed for environments where security and data integrity are paramount. It combines state-of-the-art cryptography with industry-leading compression algorithms to force a strict "security-first" posture.
 
-## ✨ Why BTXZ?
+Unlike general-purpose archivers, BTXZ assumes all data is sensitive. It employs authenticated encryption for both file contents and metadata (filenames, directory structure), ensuring zero information leakage to unauthorized parties.
 
-| Feature | Description |
-| :--- | :--- |
-| **🛡️ Military-Grade Encryption** | Utilizes **AES-256-GCM** with a key derived via **Argon2id** (the winner of the Password Hashing Competition). This provides authenticated encryption, protecting against tampering and ensuring data integrity. |
-| **🗜️ High-Ratio Compression** | Employs the robust **XZ (LZMA2)** algorithm to achieve superior compression ratios, saving you valuable disk space compared to standard Zip or Gzip. |
-| **🔄 Seamless Self-Updating** | The `btxz update` command fetches the latest secure release directly from GitHub and seamlessly replaces the current executable, keeping you up-to-date with one command. |
-| **🔒 Secure by Design** | Built to be resilient against malformed archives. It's hardened against path traversal attacks and will safely skip corrupted files during extraction instead of halting or crashing. |
+## Technical Specifications (V3 Protocol)
 
-## 🚀 Installation
+The V3 format is the current standard for all new BTXZ archives. It is engineered to withstand modern cryptographic attacks, including nonce reuse vulnerabilities and brute-force attempts.
 
-The recommended way to install BTXZ™ is with our one-line installer. It automatically detects your OS and architecture, downloads the correct binary, and adds it to your system's PATH.
+| Component | Specification | Details |
+| :--- | :--- | :--- |
+| **Encryption** | **XChaCha20-Poly1305** | Authenticated Encryption with Associated Data (AEAD). Uses a **24-byte nonce** to eliminate the risk of random nonce collisions, making it safe for massive scale deployments. |
+| **Key Derivation** | **Argon2id** | The winner of the Password Hashing Competition. Configured with adaptive memory hardness (up to 512MB) to render GPU-based brute-force attacks infeasible. |
+| **Compression** | **LZMA2 (XZ)** | High-ratio compression algorithm optimized for binary data and text. Tuned with variable dictionary sizes based on the selected hardware profile. |
+| **Container** | **Tar** | POSIX-compliant tar stream enabling preservation of permissions, ownership, and directory structures. |
 
-> [!IMPORTANT]
-> The scripts below are the *only* official installation methods. Always download from the official repository to ensure you are getting a secure and untampered version of the tool.
+## Adaptive Hardware Profiles
 
----
+BTXZ V3 introduces **Adaptive Profiles**, allowing the operator to tailor the cryptographic and compression workload to the available hardware resources.
 
-### Linux / macOS / Termux
+| Profile | Flag | Memory Requirement | Description |
+| :--- | :--- | :--- | :--- |
+| **Low** | `--level low` | ~64 MB | Optimized for embedded systems (Raspberry Pi), mobile devices in Termux, and legacy hardware. Fast encryption, moderate compression. |
+| **Balanced** | `--level default` | ~128 MB | The standard profile. Balances high compression ratios with reasonable memory usage. Suitable for most desktops and servers. |
+| **Max** | `--level max` | ~512 MB | **Paranoid Mode.** Maximizes encryption difficulty (4 passes of Argon2id) and uses Ultra-level XZ compression settings. Recommended for archival of critical data on powerful hardware. |
 
-This command works on most Unix-like systems, including Debian/Ubuntu, Fedora, Arch, macOS (Intel & Apple Silicon), and Termux on Android.
+## Installation
 
+### Automated Installer
+
+The following command automatically detects the operating system (Windows, Linux, macOS) and architecture (amd64, arm64), downloads the latest binary, and installs it to the system path.
+
+**Linux / macOS / Termux**
 ```sh
 curl -fsSL https://raw.githubusercontent.com/BlackTechX011/BTXZ/main/scripts/install.sh | sh
 ```
 
-> [!TIP]
-> After installation, you may need to restart your terminal or run `source ~/.zshrc`, `source ~/.bashrc`, etc., to refresh your `PATH` environment variable.
-
----
-
-### Windows (PowerShell)
-
-> [!NOTE]
-> This command temporarily adjusts the execution policy **only for the current process**. It's a safe and standard way to run trusted remote scripts and does not permanently change your system's security settings.
-
-**Open a new PowerShell (as a regular user) and run:**
-
+**Windows (PowerShell)**
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; iwr https://raw.githubusercontent.com/BlackTechX011/BTXZ/main/scripts/install.ps1 | iex
 ```
-> [!WARNING]
-> You **must** open a new PowerShell window after the installation completes. The `PATH` environment variable is only loaded when a new terminal session starts.
 
-<details>
-  <summary>Manual Installation</summary>
-  
-  1. Go to the [**Releases page**](https://github.com/BlackTechX011/BTXZ/releases/latest).
-  2. Download the appropriate binary for your operating system and architecture (e.g., `btxz-x86_64-unknown-linux-gnu`).
-  3. Rename the binary to `btxz` (or `btxz.exe` on Windows).
-  4. Move the binary to a directory included in your system's `PATH` (e.g., `/usr/local/bin` on Linux/macOS, or a custom folder on Windows that you add to the Path Environment Variable).
-  5. On Linux/macOS, make the binary executable: `chmod +x /usr/local/bin/btxz`.
-</details>
+### Manual Installation
 
-## ⚡ Quick Start
+1. Navigate to the [Releases](https://github.com/BlackTechX011/BTXZ/releases/latest) page.
+2. Download the binary corresponding to your OS and CPU architecture.
+3. Verify the SHA256 checksum against the `sha256sums.txt` file provided in the release.
+4. Move the executable to a directory in your system `PATH`.
 
-Using BTXZ is designed to be intuitive. Here are the most common operations.
+## Usage Guide
 
-### 1. Create an Archive
+### Creating a Secure Archive
 
-To compress and encrypt files or folders into a `.btxz` archive:
+To create a new archive, use the `create` command. You must specify the output path via `-o`.
 
 ```sh
-# Archive a single file and a whole directory
-btxz create report.docx project_assets/ -o my_archive.btxz -l best
+# Create a standard archive (Balanced Profile)
+btxz create ./documents ./projects -o confidential.btxz
+
+# Create a maximium security archive for long-term storage
+btxz create ./database_dump.sql -o backup.btxz --level max
 ```
 
-You will be prompted to enter and confirm a password securely.
+The system will securely prompt for a password if one is not provided via flags.
 
-> [!TIP]
-> You can provide a password directly with the `-p` or `--password` flag (e.g., `btxz create ... -p "MySecret"`). This is useful for scripting but can expose the password in your shell history. Use with caution.
+### Extracting an Archive
 
-### 2. Extract an Archive
-
-To decompress and decrypt an archive:
+Extraction automatically detects the archive version (V1, V2, or V3) and applies the correct decryption routine.
 
 ```sh
 # Extract to the current directory
-btxz extract my_archive.btxz
+btxz extract archive.btxz
 
-# Extract to a specific output directory
-btxz extract my_archive.btxz -o ./restored_files
+# Extract to a specific destination
+btxz extract archive.btxz -o /path/to/destination
 ```
 
-You will be prompted for the password.
+### Verifying Integrity
 
-### 3. List Archive Contents
-
-To see the file and directory structure inside an archive without extracting it:
+The `test` command validates the integrity of the archive structure and the authenticity of the ciphertext without writing data to disk. This ensures the file has not been tampered with or corrupted.
 
 ```sh
-btxz list my_archive.btxz
+btxz test archive.btxz
 ```
 
-This requires the password, as the file list itself is encrypted.
+### Listing Contents
 
-## 📖 Command Reference
+Operators can inspect the contents of an encrypted archive without extraction. This requires the valid decryption key.
 
-<details>
-  <summary>Click to expand the full command reference</summary>
+```sh
+btxz list archive.btxz
+```
 
-| Command | Alias | Description | Options |
-| :--- | :--- | :--- | :--- |
-| `create` | `c` | Creates a new encrypted, compressed archive. | `-o, --output <path>` (Required)<br>`-p, --password <pass>` `-l, --level <fast/default/best>` |
-| `extract`| `x` | Extracts files and folders from an archive. | `-o, --output <path>`<br>`-p, --password <pass>` |
-| `list`   | `l` | Lists the contents of an archive. | `-p, --password <pass>` |
-| `update` | `u` | Checks for and installs the latest version of BTXZ. | |
-| `help`   | | Displays help information for a command. | |
+## Security Model
 
-</details>
+**Authentication is Mandatory:** BTXZ uses AEAD (Authenticated Encryption). Any modification to the ciphertext (bit-flipping, truncation) will be detected during decryption, and the operation will be aborted immediately.
 
----
+**Metadata Protection:** The file manifest is encrypted. An attacker accessing the `.btxz` file cannot determine the filenames, directory structure, or file sizes contained within.
 
-## 🗺️ Project Roadmap
+**Memory Hardness:** The Argon2id parameters are tuned to exceed the memory bandwidth available to typical ASIC/FPGA cracking rigs, forcing attackers to use general-purpose RAM, which significantly increases the cost of an attack.
 
-This project is actively developed. Here is a list of planned features. Contributions are welcome!
+## License
 
-### Core Features
-- [x] Core `create`, `extract`, and `list` commands
-- [x] Secure password-based encryption (AES-256-GCM + Argon2id)
-- [x] High-ratio compression with XZ
-- [ ] Add support for different compression levels (`--level`)
-- [ ] Implement a `modify` command to add/remove files from existing archives
-- [ ] Implement a `test` command to verify archive integrity
+This software is distributed under a proprietary End-User License Agreement (EULA). It is free for personal, non-commercial use. Commercial deployment requires prior authorization. See `LICENSE.md` for full terms.
 
-### User Experience
-- [x] Automated release workflow with cross-compiled binaries
-- [x] Self-update mechanism (`btxz update`)
-- [ ] Add a global configuration file (`~/.config/btxz/config.json`)
-- [ ] Implement interactive mode (`btxz --interactive`) for guided operations
-- [ ] Add detailed progress bars for large file operations
-- [ ] Implement a GUI wrapper for the CLI tool
-
-### Documentation & Community
-- [x] `LICENSE.md` with custom EULA
-- [x] `CONTRIBUTING.md` and Issue Templates
-- [ ] Add advanced usage examples and a FAQ to this README
-- [ ] Create a GitHub Pages site for full documentation
-
-> **Have an idea or found a bug?** [**Open an issue!**](https://github.com/BlackTechX011/BTXZ/issues/new/choose) We'd love to hear from you.
-
-## 🤝 Contributing
-
-Contributions are the backbone of open source. We welcome contributions of all kinds, from filing detailed bug reports to implementing new features.
-
-Before you start, please take a moment to read our guidelines:
-
--   **[Contribution Guide](CONTRIBUTING.md):** The main guide for how to submit pull requests, our coding standards, and the development process.
--   **[Open an Issue](https://github.com/BlackTechX011/BTXZ/issues/new/choose):** The best place to report a bug, ask a question, or propose a new feature.
-
-## 🛡️ Security Model
-
-> [!CAUTION]
-> This software is provided "as is" without warranty of any kind. While it is designed with strong security principles, you are responsible for securely managing your passwords. **There is no way to recover a lost password.**
-
-The security of BTXZ™ is a top priority. If you discover a security vulnerability, we ask that you report it to us privately to protect our users.
-
-**Please do not open a public GitHub issue for security-related concerns.**
-
-Instead, send a detailed report directly to: [me](mailto:BlackTechX@proton.me)
-
-We will make every effort to respond to your report in a timely manner.
-
-## ⚖️ License
-
-This software is distributed under a custom End-User License Agreement (EULA).
-
-> [!IMPORTANT]
-> The license grants permission for **personal, non-commercial use only**. For any other use, including commercial, corporate, or government, please contact the author.
-
-Please see the [**LICENSE.md**](LICENSE.md) file for the full terms and conditions.
-
----
-*BTXZ™ is a trademark of [BlackTechX011](https://github.com/BlackTechX011). All rights reserved.*
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+Copyright © 2025 BlackTechX011. All Rights Reserved.
