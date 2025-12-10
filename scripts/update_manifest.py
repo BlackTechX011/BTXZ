@@ -12,9 +12,9 @@ def compute_sha256(filepath):
     return sha256_hash.hexdigest()
 
 def get_platform_key(filename):
-    # Expected format: btxz-{OS}-{ARCH}[.exe]
-    # Regex to handle optional .exe and extract OS-ARCH
-    match = re.match(r"btxz-([a-z0-9]+-[a-z0-9]+)(?:\.exe)?$", filename)
+    # Old Regex (Failed): r"btxz-([a-z0-9]+-[a-z0-9]+)(?:\.exe)?$"
+    # New Regex: Captures OS-ARCH-VARIANT (e.g., windows-amd64-modern)
+    match = re.match(r"btxz-([a-z0-9]+-[a-z0-9]+-[a-z0-9]+)(?:\.exe)?$", filename)
     if match:
         return match.group(1)
     return None
@@ -42,17 +42,19 @@ def main():
 
     print(f"Updating manifest for version {manifest.get('version', 'unknown')}...")
 
+    count = 0
     for asset in assets:
         filename = asset['name']
         download_url = asset['browser_download_url']
         
-        # Skip non-binary files (like sha256sums.txt)
-        if filename.endswith(".txt") or filename.endswith(".sh") or filename.endswith(".ps1"):
+        # Skip non-binary files
+        if filename.endswith(".txt") or filename.endswith(".sh") or filename.endswith(".ps1") or filename == "version.json":
+            print(f"Skipping utility file: {filename}")
             continue
 
         key = get_platform_key(filename)
         if not key:
-            print(f"Skipping {filename}: could not determine platform key")
+            print(f"Skipping {filename}: Does not match regex 'btxz-os-arch-variant'")
             continue
 
         local_path = os.path.join(artifacts_dir, filename)
@@ -61,7 +63,8 @@ def main():
             checksum = ""
         else:
             checksum = compute_sha256(local_path)
-            print(f"Processed {filename} -> {key} (SHA256: {checksum[:8]}...)")
+            print(f"Processed {filename} -> Key: {key}")
+            count += 1
 
         manifest['platforms'][key] = {
             "url": download_url,
@@ -70,9 +73,9 @@ def main():
 
     with open(version_file, 'w') as f:
         json.dump(manifest, f, indent=4)
-        f.write('\n') # Add trailing newline
+        f.write('\n')
 
-    print("Manifest updated successfully.")
+    print(f"Manifest updated successfully. {count} binaries added.")
 
 if __name__ == "__main__":
     main()
