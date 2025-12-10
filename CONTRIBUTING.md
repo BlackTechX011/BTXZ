@@ -1,42 +1,47 @@
+# Contributing Guidelines
 
-# Contributing to BTXZ™
+Thank you for your interest in contributing to BTXZ. This document outlines the standards and procedures for submitting code, reporting issues, and proposing enhancements.
 
-First off, thank you for considering contributing to BTXZ! Your help is invaluable in making this project better. This document provides guidelines to ensure a smooth and effective contribution process.
+## Code of Conduct
 
+All contributors are expected to maintain a professional and respectful demeanor. Harassment or abusive behavior will not be tolerated.
 
-## How Can I Contribute?
+## Issue Reporting
 
-### Reporting Bugs
+### Bug Reports
 
-- Ensure the bug was not already reported by searching on GitHub under [Issues](https://github.com/BlackTechX011/BTXZ/issues).
-- If you're unable to find an open issue addressing the problem, [open a new one](https://github.com/BlackTechX011/BTXZ/issues/new/choose). Be sure to use the "Bug Report" template and include as much detail as possible.
+When submitting a bug report, please ensure the following information is included to facilitate rapid diagnosis:
 
-### Suggesting Enhancements
+1.  **System Information**: Operating System, Architecture (amd64/arm64), and BTXZ version.
+2.  **Reproduction Steps**: A concise, step-by-step guide to reproducing the issue.
+3.  **Expected Behavior**: What you anticipated would happen.
+4.  **Actual Behavior**: What actually happened, including full error logs and stack traces if available.
 
-- We are always looking for ideas to improve BTXZ!
-- Please check the [Issues](https://github.com/BlackTechX011/BTXZ/issues) to see if your idea has already been discussed.
-- If not, [open a new issue](https://github.com/BlackTechX011/BTXZ/issues/new/choose) using the "Feature Request" template.
+### Feature Requests
+
+Feature proposals should include:
+
+1.  **Use Case**: A clear explanation of the problem this feature solves.
+2.  **Proposed Implementation**: A high-level technical overview of how the feature could be implemented.
+3.  **Alternatives**: Other solutions that were considered.
+
+## Development Workflow
 
 ### Pull Requests
 
-We welcome pull requests for bug fixes and feature enhancements. Please follow these steps to have your contribution considered:
+1.  **Fork and Clone**: Fork the repository and clone it locally.
+2.  **Branching**: Create a feature branch (`feature/description`) or a fix branch (`fix/issue-description`).
+3.  **Coding Standards**:
+    *   Adhere to standard Go idioms and formatting.
+    *   Run `go fmt ./...` before committing.
+    *   Ensure all new code is covered by tests where applicable.
+4.  **Commit Messages**: Use imperative mood (e.g., "Add support for X", not "Added support for X").
+5.  **Submission**: Open a Pull Request against the `main` branch. Provide a detailed description of the changes.
 
-1.  **Fork the repository** to your own GitHub account.
-2.  **Clone your fork** to your local machine: `git clone https://github.com/BlackTechX011/BTXZ.git`
-3.  **Create a new branch** for your changes: `git checkout -b feature/my-amazing-feature` or `fix/a-specific-bug`.
-4.  **Make your changes.** Ensure you adhere to the project's coding style by running `go fmt ./...` and `goimports -w .` within the `btxz/` directory.
-5.  **Update Documentation.** If you add or change a command or flag, please update the relevant help text in `main.go` and, if necessary, the `README.md`.
-6.  **Commit your changes** with a clear and descriptive commit message.
-7.  **Push your branch** to your fork: `git push origin feature/my-amazing-feature`.
-8.  **Open a Pull Request** to the `main` branch of the `BlackTechX011/BTXZ` repository. Provide a clear title and description for your changes.
+### Licensing
 
-## Contributor License Agreement
+By submitting a contribution, you agree that your code will be licensed under the terms of the project's [LICENSE](LICENSE.md). You certify that you have the right to submit the code and that it does not infringe upon any third-party intellectual property rights.
 
-BTXZ is distributed under a custom **End-User License Agreement (EULA)**, not a standard open-source license. Please review the [LICENSE.md](LICENSE.md) file carefully.
+## Security Vulnerabilities
 
-By submitting a pull request, you certify that:
-- (a) You have the right to submit the contribution, and it does not violate any third-party rights.
-- (b) You agree that your contribution will be licensed under the same terms as the existing [BTXZ EULA](LICENSE.md).
-- (c) You understand and agree that your contribution is subject to the same restrictions, including the prohibition on commercial use without permission and the naming requirements for derivative works.
-
-This ensures that the project remains consistent and legally sound. We appreciate your understanding and cooperation.
+Do not report security vulnerabilities via public GitHub issues. Please disclose them responsibly by contacting the maintainers directly.
