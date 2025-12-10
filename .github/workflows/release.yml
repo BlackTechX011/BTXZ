@@ -162,16 +162,21 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
+          # Ensure we are on main
           git checkout main
-          
-          git pull origin main --rebase
-          
+
+          git checkout -- scripts/generate-checksums.sh || true
+
+          # Stage version.json
           git add version.json
           
+          # Check if there are changes
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-           
             git commit -m "chore(release): Update asset URLs for v${{ env.VERSION }} [skip ci]"
+            
+            git pull origin main --rebase
+            
             git push origin main
           fi
