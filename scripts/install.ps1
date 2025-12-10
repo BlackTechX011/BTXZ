@@ -1,107 +1,109 @@
 <#
 .SYNOPSIS
-    Installs the BTXZ™ command-line tool for Windows.
+    Professional Installer for BTXZ Archiver (Windows)
 .DESCRIPTION
-    This script automatically detects the Windows OS version to download the
-    latest "modern" (Windows 11+) or "compat" (Windows 10 and older)
-    binary for BTXZ from GitHub. It installs it to the user's home
-    directory (~/.btxz) and adds the installation directory to the user's PATH.
-.EXAMPLE
-    To run from the web (ensure Execution Policy is set appropriately):
-    iwr https://raw.githubusercontent.com/BlackTechX011/BTXZ/main/scripts/install.ps1 | iex
-.NOTES
-    Author: BlackTechX011
-    License: BTXZ EULA (https://github.com/BlackTechX011/BTXZ/blob/main/LICENSE.md)
-    Modified to include OS version detection for modern/compat builds.
+    Downloads, verifies, and installs the latest version of BTXZ.
+    Adds the installation directory to the User PATH if needed.
 #>
 
-# Stop script on any error
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = "Stop"
 
-# --- Configuration ---
+# Configuration
 $Repo = "BlackTechX011/BTXZ"
-$InstallDir = Join-Path $HOME ".btxz"
+$VersionUrl = "https://raw.githubusercontent.com/$Repo/main/version.json"
+$InstallDir = "$env:LOCALAPPDATA\Programs\btxz"
 $ExeName = "btxz.exe"
 
-# --- Main Logic ---
+# Colors
+function Print-Header($Msg) { Write-Host -ForegroundColor Cyan "`n$Msg" }
+function Print-Success($Msg) { Write-Host -ForegroundColor Green "SUCCESS: $Msg" }
+function Print-Info($Msg) { Write-Host -ForegroundColor Gray "INFO: $Msg" }
+function Print-Error($Msg) { Write-Host -ForegroundColor Red "ERROR: $Msg"; exit 1 }
+
+# --- BANNER ---
+Write-Host -ForegroundColor Cyan @"
+██████╗ ████████╗██╗  ██╗███████╗
+██╔══██╗╚══██╔══╝╚██╗██╔╝╚══███╔╝
+██████╔╝   ██║    ╚███╔╝   ███╔╝ 
+██╔══██╗   ██║    ██╔██╗  ███╔╝  
+██████╔╝   ██║   ██╔╝ ██╗███████╗
+╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝
+PROFESSIONAL SECURE ARCHIVER
+"@
+
+# 1. Fetch Version Info
+Print-Header "CHECKING UPDATES"
 try {
-    Write-Host "Starting BTXZ™ installation for Windows..." -ForegroundColor Cyan
-
-    # 1. Detect Architecture
-    if ($env:PROCESSOR_ARCHITECTURE -ne "AMD64") {
-        throw "Unsupported architecture: $($env:PROCESSOR_ARCHITECTURE). BTXZ currently supports AMD64 (64-bit) on Windows."
-    }
-    $Arch = "amd64"
-    $Os = "windows"
-
-    # --- NEW: OS Version Detection to select correct binary ---
-    # Windows 11 has a build number of 22000 or greater.
-    $OsVersion = [System.Environment]::OSVersion.Version
-    $BuildNumber = $OsVersion.Build
-
-    if ($BuildNumber -ge 22000) {
-        Write-Host "Detected Windows 11 or newer (Build $BuildNumber)." -ForegroundColor Green
-        $BinaryName = "btxz-$Os-$Arch-modern.exe"
-    } else {
-        Write-Host "Detected Windows 10 or older (Build $BuildNumber)." -ForegroundColor Green
-        $BinaryName = "btxz-$Os-$Arch-compat.exe"
-    }
-    # --- END NEW ---
-
-    Write-Host "Detected System: $Os-$Arch. Target binary: $BinaryName" -ForegroundColor Cyan
-
-    # 2. Get the download URL for the latest release
-    $ApiUrl = "https://api.github.com/repos/$Repo/releases/latest"
-    Write-Host "Fetching latest release information from GitHub..." -ForegroundColor Cyan
-
-    $latestRelease = Invoke-RestMethod -Uri $ApiUrl
-    $asset = $latestRelease.assets | Where-Object { $_.name -eq $BinaryName }
-
-    if (-not $asset) {
-        throw "Could not find a download URL for '$BinaryName'. The release may be missing."
-    }
-
-    $DownloadUrl = $asset.browser_download_url
-    Write-Host "Download URL: $DownloadUrl" -ForegroundColor Cyan
-
-    # 3. Download and Install
-    $InstallPath = Join-Path $InstallDir $ExeName
-    Write-Host "Installing to $InstallPath..." -ForegroundColor Cyan
-
-    # Ensure the installation directory exists
-    if (-not (Test-Path -Path $InstallDir)) {
-        New-Item -ItemType Directory -Path $InstallDir | Out-Null
-    }
-
-    Invoke-WebRequest -Uri $DownloadUrl -OutFile $InstallPath
-
-    # 4. Add to PATH (permanently for the current user)
-    Write-Host "Adding installation directory to your PATH..." -ForegroundColor Cyan
-    $UserPath = [System.Environment]::GetEnvironmentVariable('Path', 'User')
-
-    if (-not ($UserPath -split ';' -contains $InstallDir)) {
-        # Using an array to avoid potential double semicolons
-        $PathArray = $UserPath -split ';' | Where-Object { $_ -ne '' }
-        $PathArray += $InstallDir
-        $NewPath = $PathArray -join ';'
-        
-        [System.Environment]::SetEnvironmentVariable('Path', $NewPath, 'User')
-
-        # Also update the current session's PATH
-        $env:PATH += ";$InstallDir"
-
-        Write-Host "Updated user PATH. Please restart your terminal for the changes to take full effect." -ForegroundColor Yellow
-    } else {
-        Write-Host "PATH is already configured." -ForegroundColor Green
-    }
-
-    Write-Host ""
-    Write-Host "BTXZ™ was installed successfully!" -ForegroundColor Green
-    Write-Host "You can now run 'btxz' from a new terminal window." -ForegroundColor Green
-
+    $JsonContent = Invoke-RestMethod -Uri $VersionUrl
+} catch {
+    Print-Error "Failed to fetch version info: $_"
 }
-catch {
-    Write-Host "An error occurred during installation:" -ForegroundColor Red
-    Write-Host $_.Exception.Message -ForegroundColor Red
-    exit 1
+
+$LatestVersion = $JsonContent.version
+$PlatformKey = "windows-amd64" # BTXZ only targets 64-bit windows for now
+$PlatformInfo = $JsonContent.platforms.$PlatformKey
+
+if (-not $PlatformInfo) {
+    Print-Error "No Windows release found in manifest."
+}
+
+$DownloadUrl = $PlatformInfo.url
+$ExpectedHash = $PlatformInfo.sha256
+
+Print-Info "Found Version: v$LatestVersion"
+
+# 2. Prepare Install Directory
+if (-not (Test-Path $InstallDir)) {
+    New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
+}
+
+# 3. Download
+Print-Header "DOWNLOADING"
+$OutFile = Join-Path $InstallDir $ExeName
+Print-Info "Source: $DownloadUrl"
+Print-Info "Dest:   $OutFile"
+
+try {
+    Invoke-WebRequest -Uri $DownloadUrl -OutFile $OutFile
+} catch {
+    Print-Error "Download failed: $_"
+}
+
+# 4. Verify Checksum
+if ($ExpectedHash) {
+    Print-Header "VERIFYING SECURITY"
+    $FileHash = (Get-FileHash $OutFile -Algorithm SHA256).Hash.ToLower()
+    
+    if ($FileHash -eq $ExpectedHash.ToLower()) {
+        Print-Success "SHA256 Checksum Verified."
+    } else {
+        Remove-Item $OutFile -ErrorAction SilentlyContinue
+        Write-Host "Expected: $ExpectedHash"
+        Write-Host "Actual:   $FileHash"
+        Print-Error "Checksum mismatch! The file may be corrupted or tampered with."
+    }
+} else {
+    Write-Host -ForegroundColor Yellow "WARNING: No checksum provided in manifest."
+}
+
+# 5. Add to PATH
+Print-Header "CONFIGURING ENVIRONMENT"
+$UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+if ($UserPath -notlike "*$InstallDir*") {
+    Print-Info "Adding $InstallDir to User PATH..."
+    [Environment]::SetEnvironmentVariable("Path", "$UserPath;$InstallDir", "User")
+    $Env:Path += ";$InstallDir"
+    Print-Success "Path updated."
+} else {
+    Print-Info "Path already configured."
+}
+
+# 6. Final Check
+Print-Header "VERIFICATION"
+try {
+    $InstalledVersion = & $OutFile --version
+    Print-Success "Installed $InstalledVersion successfully!"
+    Write-Host "`nYou can now use 'btxz' from any new terminal window."
+} catch {
+    Print-Error "Binary check failed. The file might not be executable."
 }
