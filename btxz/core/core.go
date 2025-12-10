@@ -36,11 +36,11 @@ func peekVersion(archivePath string) (uint16, error) {
 	return version, nil
 }
 
-// CreateArchive creates a new archive. By default, it creates the latest version (v2).
+// CreateArchive creates a new archive. By default, it creates the latest version (v3).
 // It serves as the single entry point for archive creation.
 func CreateArchive(archivePath string, inputPaths []string, password string, level string) error {
-	// For now, all new archives are created using the v2 format.
-	return CreateArchiveV2(archivePath, inputPaths, password, level)
+	// New archives are created using the secure v3 format (Pro).
+	return CreateArchiveV3(archivePath, inputPaths, password, level)
 }
 
 // ExtractArchive inspects the archive version and calls the appropriate
@@ -53,11 +53,11 @@ func ExtractArchive(archivePath, outputDir, password string) ([]string, error) {
 
 	switch version {
 	case coreVersionV1:
-		// Note: We are calling the function from the v1.go file.
 		return ExtractArchiveV1(archivePath, outputDir, password)
 	case coreVersionV2:
-		// Note: We are calling the function from the v2.go file.
 		return ExtractArchiveV2(archivePath, outputDir, password)
+	case coreVersionV3:
+		return ExtractArchiveV3(archivePath, outputDir, password)
 	default:
 		return nil, fmt.Errorf("unsupported archive core version: v%d", version)
 	}
@@ -76,7 +76,24 @@ func ListArchiveContents(archivePath, password string) ([]ArchiveEntry, error) {
 		return ListArchiveContentsV1(archivePath, password)
 	case coreVersionV2:
 		return ListArchiveContentsV2(archivePath, password)
+	case coreVersionV3:
+		return ListArchiveContentsV3(archivePath, password)
 	default:
 		return nil, fmt.Errorf("unsupported archive core version: v%d", version)
+	}
+}
+
+// TestArchive validates the integrity of an archive without extracting it.
+func TestArchive(archivePath, password string) error {
+	version, err := peekVersion(archivePath)
+	if err != nil {
+		return err
+	}
+
+	switch version {
+	case coreVersionV3:
+		return TestArchiveV3(archivePath, password)
+	default:
+		return fmt.Errorf("integrity check not supported for legacy archive version v%d", version)
 	}
 }
