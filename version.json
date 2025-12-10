@@ -1,4 +1,5 @@
 {
-    "version": "1.2.1",
-    "platforms": {}
+  "version": "1.2.0",
+  "title": "BTXZ Archiver Major Update v1.2.0",
+  "message": "#BTXZ Archiver \n --- \n### Changelog\n\n- Introduced v3 core: new core engine providing the next-generation compression/encryption foundation\n- Breaking changes: archive format and some CLI flags updated — see README for the full migration guide\n- README updated with a complete changelog and upgrade instructions\n- Dependency and build script updates\n- Miscellaneous tooling, packaging, and cross-platform build improvements"
 }
