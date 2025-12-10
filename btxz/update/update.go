@@ -4,25 +4,28 @@
 package update
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"runtime"
 	"sync"
+	"bytes"
 
 	"github.com/inconshreveable/go-update"
 	"github.com/pterm/pterm"
 )
+
 const versionURL = "https://raw.githubusercontent.com/BlackTechX011/BTXZ/main/version.json"
 
 // updateArt is the visual warning for an available update.
 const updateArt = `
-      ▲
-     / \
-    / ! \
-   /_____\
-  UPDATE AVAILABLE`
+ ╔══════════════════════════════════╗
+ ║      SYSTEM UPDATE DETECTED      ║
+ ╚══════════════════════════════════╝
+      ↓↓ INSTALLING PATCHES ↓↓`
 
 // ReleaseInfo defines the structure of the version.json file on GitHub.
 type ReleaseInfo struct {
@@ -31,12 +34,13 @@ type ReleaseInfo struct {
 	Platforms map[string]PlatformDetails `json:"platforms"`
 }
 
-// PlatformDetails contains the download URL for a specific OS/architecture.
+// PlatformDetails contains the download URL and security checksum for a specific architecture.
 type PlatformDetails struct {
-	URL string `json:"url"`
+	URL      string `json:"url"`
+	Checksum string `json:"sha256"` // SHA256 hash of the binary
 }
 
-// a an in-memory cache for the latest release info.
+// Cache for the latest release info.
 var (
 	latestRelease *ReleaseInfo
 	checkOnce     sync.Once
@@ -87,8 +91,8 @@ func DisplayUpdateNotification() {
 
 // PerformUpdate executes the self-update process.
 func PerformUpdate(currentVersion string) error {
-	pterm.Info.Println("Checking for the latest version...")
-	// We run the check again here to ensure we have the absolute latest info.
+	// Force a fresh check
+	checkOnce = sync.Once{} 
 	CheckForUpdates(currentVersion)
 
 	mu.RLock()
@@ -96,7 +100,8 @@ func PerformUpdate(currentVersion string) error {
 	mu.RUnlock()
 
 	if release == nil {
-		return errors.New("you are already running the latest version, or the update check failed")
+		pterm.Info.Println("Your system is up to date.")
+		return nil
 	}
 
 	platformKey := fmt.Sprintf("%s-%s", runtime.GOOS, runtime.GOARCH)
@@ -105,21 +110,94 @@ func PerformUpdate(currentVersion string) error {
 		return fmt.Errorf("no update available for your platform: %s", platformKey)
 	}
 
-	pterm.Info.Printf("Downloading new version %s...\n", release.Version)
-	resp, err := http.Get(platformInfo.URL)
+	pterm.DefaultSection.Println("Update Found")
+	pterm.Info.Printf("Current: %s\n", currentVersion)
+	pterm.Info.Printf("Latest:  %s\n", pterm.Green(release.Version))
+	pterm.Info.Printf("Notes:   %s\n", release.Notes)
+
+	// --- DOWNLOAD PHASE ---
+	pterm.DefaultSection.Println("Downloading")
+	
+	req, err := http.NewRequest("GET", platformInfo.URL, nil)
 	if err != nil {
-		return fmt.Errorf("failed to download update: %w", err)
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("failed to download: %w", err)
 	}
 	defer resp.Body.Close()
 
-	pterm.Info.Println("Applying update... Your OS may ask for permissions.")
-	err = update.Apply(resp.Body, update.Options{})
-	if err != nil {
-		// The library can return an error that we can check.
-		if rerr := update.RollbackError(err); rerr != nil {
-			return fmt.Errorf("failed to apply update and rollback failed: %v", rerr)
+	if resp.ContentLength > 0 {
+		bar, _ := pterm.DefaultProgressbar.WithTotal(int(resp.ContentLength)).WithTitle("Downloading update...").Start()
+		// Wrap body to update the progress bar
+		proxyReader := &progressReader{
+			Reader: resp.Body,
+			Bar:    bar,
 		}
-		return fmt.Errorf("failed to apply update: %w", err)
+		// Read into memory
+		data, err := io.ReadAll(proxyReader)
+		if err != nil {
+			return fmt.Errorf("download interrupted: %w", err)
+		}
+		bar.Stop() // Ensure bar finishes
+		
+		// --- VERIFICATION PHASE ---
+		pterm.DefaultSection.Println("Security Checks")
+		
+		if platformInfo.Checksum != "" {
+			spinner, _ := pterm.DefaultSpinner.Start("Verifying SHA256 checksum...")
+			hash := sha256.Sum256(data)
+			calculatedHash := hex.EncodeToString(hash[:])
+			if calculatedHash != platformInfo.Checksum {
+				spinner.Fail("Checksum Mismatch!")
+				return fmt.Errorf("security check failed: expected %s, got %s", platformInfo.Checksum, calculatedHash)
+			}
+			spinner.Success("Checksum Verified")
+		} else {
+			pterm.Warning.Println("Skipping checksum checks (not provided in manifest).")
+		}
+
+		// --- INSTALLATION PHASE ---
+		pterm.DefaultSection.Println("Installation")
+		pterm.Info.Println("Replacing binary...")
+		
+		reader := bytes.NewReader(data)
+		err = update.Apply(reader, update.Options{})
+		if err != nil {
+			if rerr := update.RollbackError(err); rerr != nil {
+				return fmt.Errorf("failed to apply update and rollback failed: %v", rerr)
+			}
+			return fmt.Errorf("failed to apply update: %w", err)
+		}
+		
+		// --- SUMMARY ---
+		pterm.DefaultSection.Println("Mission Report")
+		reportData := [][]string{
+			{"Previous Version", currentVersion},
+			{"New Version", pterm.Green(release.Version)},
+			{"Platform", platformKey},
+			{"Status", "UPDATED"},
+		}
+		pterm.DefaultTable.WithData(reportData).WithBoxed().Render()
+		pterm.Success.Println("BTXZ has been updated successfully. Please restart your terminal.")
+
+		return nil
 	}
-	return nil
+	
+	return fmt.Errorf("server returned unknown content length")
+}
+
+// progressReader wraps an io.Reader to update a pterm.Progressbar
+type progressReader struct {
+	io.Reader
+	Bar *pterm.ProgressbarPrinter
+}
+
+func (pr *progressReader) Read(p []byte) (n int, err error) {
+	n, err = pr.Reader.Read(p)
+	if n > 0 && pr.Bar != nil {
+		pr.Bar.Add(n)
+	}
+	return
 }
