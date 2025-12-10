@@ -133,10 +133,16 @@ jobs:
             scripts/install.sh
             scripts/install.ps1
 
-      - name: Update version.json with download URLs
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Update version.json with secure metadata
+        env:
+          ASSETS_JSON: ${{ steps.create_release.outputs.assets }}
         run: |
-          urls_json=$(echo '${{ steps.create_release.outputs.assets }}' | jq -r '[.[] | {key: .name, value: .browser_download_url}] | from_entries')
-          jq --argjson urls "$urls_json" '.urls = $urls' version.json > version.json.tmp && mv version.json.tmp version.json
+          python3 scripts/update_manifest.py version.json "$ASSETS_JSON" artifacts/
           cat version.json
 
       - name: Commit and push updated version.json
@@ -147,6 +153,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(release): Update asset URLs for v${{ env.VERSION }}"
+            git commit -m "chore(release): Update asset URLs and Checksums for v${{ env.VERSION }}"
             git push
           fi
